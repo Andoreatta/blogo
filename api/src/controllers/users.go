@@ -5,21 +5,23 @@ import (
 	"api/src/models"
 	"api/src/repositories"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
 )
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Creating User."))
 	bodyRequest, err := io.ReadAll(r.Body)
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	var user models.User
 	if err = json.Unmarshal(bodyRequest, &user); err != nil {
 		log.Fatal(err)
 	}
+	// 	w.Write([]byte("Creating User."))
 
 	db, err := database.ConnectDB()
 	if err != nil {
@@ -27,7 +29,11 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	repo := repositories.NewUserRepo(db)
-	repo.Create(user)
+	userId, err := repo.Create(user)
+	if err != nil {
+		log.Fatal(err)
+	}
+	w.Write([]byte(fmt.Sprintf("Id inserted: %d", userId)))
 }
 
 func DeleteUser(w http.ResponseWriter, r *http.Request) {

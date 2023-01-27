@@ -11,6 +11,6 @@ import (
 func main() {
 	r := router.Generate()
 	config.LoadEnv()
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", config.Port), r))
 	fmt.Println("API is up and running!")
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", config.Port), r))
 }
