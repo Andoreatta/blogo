@@ -14,7 +14,7 @@ func NewUserRepo(db *sql.DB) *users {
 	return &users{db}
 }
 
-// Creates insert into database
+// Creates a user insert into database
 func (repo users) Create(user models.User) (uint64, error) {
 	statement, err := repo.db.Prepare("INSERT INTO users (username, email, passwd) VALUES(?, ?, ?)")
 	if err != nil {
