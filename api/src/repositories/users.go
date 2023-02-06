@@ -63,3 +63,30 @@ func (repo users) Search(username string) ([]models.User, error) {
 	}
 	return users, nil
 }
+
+// Fetches by Id from the database
+func (repo users) SearchById(Id uint64) (models.User, error) {
+	lines, err := repo.db.Query(
+		"SELECT userId, username, email, createdAt FROM users WHERE userId = ?", Id,
+	)
+	if err != nil {
+		// has to return empty user in case of error
+		return models.User{}, err
+	}
+	defer lines.Close()
+
+	var user models.User
+
+	if lines.Next() {
+		if err = lines.Scan(
+			&user.ID,
+			&user.Username,
+			&user.Email,
+			&user.CreatedAt,
+		); err != nil {
+			return models.User{}, err
+		}
+	}
+
+	return user, nil
+}
