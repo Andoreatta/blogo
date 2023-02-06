@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"strings"
 )
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {
@@ -19,6 +20,11 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	var user models.User
 	if err = json.Unmarshal(bodyRequest, &user); err != nil {
+		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
+
+	if err = user.Prepare(); err != nil {
 		responses.Error(w, http.StatusBadRequest, err)
 		return
 	}
@@ -45,9 +51,26 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 func SearchUser(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Fetching User."))
 }
+
 func SearchUsers(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Fetching Users."))
+	username := strings.ToLower(r.URL.Query().Get("user"))
+
+	db, err := database.ConnectDB()
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
+
+	repo := repositories.NewUserRepo(db)
+	users, err := repo.Search(username)
+	if err != nil {
+		responses.Error(w, http.StatusInternalServerError, err)
+		return
+	}
+	responses.JSON(w, http.StatusOK, users)
 }
+
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Updating User."))
 }
