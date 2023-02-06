@@ -45,6 +45,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		responses.Error(w, http.StatusInternalServerError, err)
 		return
 	}
+
 	responses.JSON(w, http.StatusCreated, user)
 }
 
@@ -52,6 +53,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Deleting User."))
 }
 
+// Searches by userId
 func SearchUser(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 
@@ -79,6 +81,7 @@ func SearchUser(w http.ResponseWriter, r *http.Request) {
 	responses.JSON(w, http.StatusOK, user)
 }
 
+// Searches by finding equal or similar to provided string
 func SearchUsers(w http.ResponseWriter, r *http.Request) {
 	username := strings.ToLower(r.URL.Query().Get("user"))
 
@@ -95,9 +98,10 @@ func SearchUsers(w http.ResponseWriter, r *http.Request) {
 		responses.Error(w, http.StatusInternalServerError, err)
 		return
 	}
+
 	responses.JSON(w, http.StatusOK, users)
 }
 
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Updating User."))
+
 }
