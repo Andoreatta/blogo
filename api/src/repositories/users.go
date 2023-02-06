@@ -90,3 +90,18 @@ func (repo users) SearchById(Id uint64) (models.User, error) {
 
 	return user, nil
 }
+
+// Updates the info of a user
+func (repo users) UpdateUser(Id uint64, user models.User) error {
+	statement, err := repo.db.Prepare("UPDATE users SET username = ?, email = ? WHERE userId = ?")
+	if err != nil {
+		return err
+	}
+	defer statement.Close()
+
+	if _, err = statement.Exec(user.Username, user.Email, Id); err != nil {
+		return err
+	}
+
+	return nil
+}

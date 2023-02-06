@@ -15,15 +15,15 @@ type User struct {
 }
 
 // Input sanitization
-func (user *User) Prepare() error {
-	if err := user.validate(); err != nil {
+func (user *User) Prepare(step string) error {
+	if err := user.validate(step); err != nil {
 		return err
 	}
 	user.format()
 	return nil
 }
 
-func (user *User) validate() error {
+func (user *User) validate(step string) error {
 	switch {
 	case user.Username == "":
 		{
@@ -33,7 +33,7 @@ func (user *User) validate() error {
 		{
 			return errors.New("the e-mail field is empty")
 		}
-	case user.Password == "":
+	case step == "registration" && user.Password == "":
 		{
 			return errors.New("the password field is empty")
 		}
