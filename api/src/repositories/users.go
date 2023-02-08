@@ -36,6 +36,36 @@ func (repo users) Create(user models.User) (uint64, error) {
 	return uint64(lastIdInserted), nil
 }
 
+// Deletes a user by Id
+func (repo users) Delete(Id uint64) error {
+	statement, err := repo.db.Prepare("DELETE FROM users WHERE userId = ?")
+	if err != nil {
+		return err
+	}
+	defer statement.Close()
+
+	if _, err = statement.Exec(Id); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Updates the info of a user
+func (repo users) Update(Id uint64, user models.User) error {
+	statement, err := repo.db.Prepare("UPDATE users SET username = ?, email = ? WHERE userId = ?")
+	if err != nil {
+		return err
+	}
+	defer statement.Close()
+
+	if _, err = statement.Exec(user.Username, user.Email, Id); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Returns all the users that contains the string content
 func (repo users) Search(username string) ([]models.User, error) {
 	username = fmt.Sprintf("%%%s%%", username) //%username%
@@ -89,19 +119,4 @@ func (repo users) SearchById(Id uint64) (models.User, error) {
 	}
 
 	return user, nil
-}
-
-// Updates the info of a user
-func (repo users) UpdateUser(Id uint64, user models.User) error {
-	statement, err := repo.db.Prepare("UPDATE users SET username = ?, email = ? WHERE userId = ?")
-	if err != nil {
-		return err
-	}
-	defer statement.Close()
-
-	if _, err = statement.Exec(user.Username, user.Email, Id); err != nil {
-		return err
-	}
-
-	return nil
 }
