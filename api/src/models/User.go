@@ -1,6 +1,7 @@
 package models
 
 import (
+	"api/src/security"
 	"errors"
 	"strings"
 	"time"
@@ -21,7 +22,9 @@ func (user *User) Prepare(step string) error {
 	if err := user.validate(step); err != nil {
 		return err
 	}
-	user.format()
+	if err := user.format(step); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -35,7 +38,7 @@ func (user *User) validate(step string) error {
 		{
 			return errors.New("the e-mail field is empty")
 		}
-	case checkmail.ValidateFormat(user.Email) == checkmail.ErrBadFormat:
+	case checkmail.ValidateFormat(user.Email) != nil:
 		{
 			return errors.New("the e-mail has an invalid format")
 		}
@@ -47,7 +50,18 @@ func (user *User) validate(step string) error {
 	return nil
 }
 
-func (user *User) format() {
+func (user *User) format(step string) error {
 	user.Username = strings.TrimSpace(user.Username)
 	user.Username = strings.TrimSpace(user.Email)
+
+	switch step {
+	case "registration":
+		hashedPassword, err := security.Hash(user.Password)
+		if err != nil {
+			return err
+		}
+		user.Password = string(hashedPassword)
+	}
+
+	return nil
 }
