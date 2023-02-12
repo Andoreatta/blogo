@@ -120,3 +120,20 @@ func (repo users) SearchById(Id uint64) (models.User, error) {
 
 	return user, nil
 }
+
+func (repo users) SearchByEmail(email string) (models.User, error) {
+	line, err := repo.db.Query("SELECT userId, passwd FROM users WHERE email = ?", email)
+	if err != nil {
+		return models.User{}, err
+	}
+	defer line.Close()
+
+	var user models.User
+	if line.Next() {
+		if err = line.Scan(&user.ID, &user.Password); err != nil {
+			return models.User{}, err
+		}
+	}
+
+	return models.User{}, err
+}
