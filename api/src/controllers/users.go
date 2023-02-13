@@ -1,11 +1,13 @@
 package controllers
 
 import (
+	"api/src/auth"
 	"api/src/database"
 	"api/src/models"
 	"api/src/repositories"
 	"api/src/responses"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -76,12 +78,19 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-
 	userId, err := strconv.ParseUint(params["userId"], 10, 64)
 	if err != nil {
 		responses.Error(w, http.StatusBadRequest, err)
 		return
 	}
+
+	userIdFromToken, err := auth.ExtractUserId(r)
+	if err != nil {
+		responses.Error(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	fmt.Println(userIdFromToken)
 
 	bodyRequest, err := io.ReadAll(r.Body)
 	if err != nil {
