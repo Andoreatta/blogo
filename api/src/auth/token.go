@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	jwt "github.com/dgrijalva/jwt-go"
+	jwt "github.com/golang-jwt/jwt"
 )
 
 func CreateToken(userId uint64) (string, error) {
@@ -32,6 +32,7 @@ func ValidateToken(r *http.Request) error {
 	if _, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		return nil
 	}
+
 	return errors.New("invalid token")
 }
 
