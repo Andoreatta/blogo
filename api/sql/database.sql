@@ -1,9 +1,9 @@
 /*
     CREATE USER blogo_admin@localhost IDENTIFIED BY 'password';
 */
-CREATE DATABASE IF NOT EXISTS Blogo;
-USE Blogo;
-GRANT ALL PRIVILEGES ON Blogo.* TO blogo_admin@localhost;
+
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS followers;
 
 CREATE TABLE users (
     userId INT auto_increment PRIMARY KEY,
@@ -14,9 +14,19 @@ CREATE TABLE users (
 ) ENGINE=INNODB;
 
 CREATE TABLE followers (
+    userId INT NOT NULL,
+        FOREIGN KEY (userId) REFERENCES users(userId)
+            ON DELETE CASCADE,
 
+    followerId INT NOT NULL,
+        FOREIGN KEY (followerId) REFERENCES users(userId)
+            ON DELETE CASCADE,
+
+    PRIMARY KEY (userId, followerId)
 ) ENGINE=INNODB;
 
-CREATE TABLE posts (
+-- CREATE TABLE posts (
 
-) ENGINE=INNODB;
+-- ) ENGINE=INNODB;
+
+GRANT ALL PRIVILEGES ON Blogo.* TO blogo_admin@localhost;
