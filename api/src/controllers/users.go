@@ -7,7 +7,7 @@ import (
 	"api/src/repositories"
 	"api/src/responses"
 	"encoding/json"
-	"fmt"
+	"errors"
 	"io"
 	"net/http"
 	"strconv"
@@ -60,6 +60,17 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userIdFromToken, err := auth.ExtractUserId(r)
+	if err != nil {
+		responses.Error(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	if userId != userIdFromToken {
+		responses.Error(w, http.StatusForbidden, errors.New("not possible to delete user that isnt yours"))
+		return
+	}
+
 	db, err := database.ConnectDB()
 	if err != nil {
 		responses.Error(w, http.StatusInternalServerError, err)
@@ -90,7 +101,10 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println(userIdFromToken)
+	if userId != userIdFromToken {
+		responses.Error(w, http.StatusForbidden, errors.New("not possible to update user that isnt yours"))
+		return
+	}
 
 	bodyRequest, err := io.ReadAll(r.Body)
 	if err != nil {
