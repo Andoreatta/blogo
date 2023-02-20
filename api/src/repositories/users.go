@@ -137,3 +137,35 @@ func (repo users) SearchByEmail(email string) (models.User, error) {
 
 	return models.User{}, err
 }
+
+func (repo users) SearchPassword(userId uint64) (string, error) {
+	lines, err := repo.db.Query("SELECT passwd FROM users WHERE userId = ?", userId)
+	if err != nil {
+		return "", err
+	}
+	defer lines.Close()
+
+	var user models.User
+
+	if lines.Next() {
+		if err = lines.Scan(&user.Password); err != nil {
+			return "", err
+		}
+	}
+
+	return user.Password, nil
+}
+
+func (repo users) UpdatePassword(userId uint64, password string) error {
+	statement, err := repo.db.Prepare("UPDATE users SET passwd = ? WHERE userId = ?")
+	if err != nil {
+		return err
+	}
+	defer statement.Close()
+
+	if _, err = statement.Exec(password, userId); err != nil {
+		return err
+	}
+
+	return nil
+}
