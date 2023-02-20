@@ -204,10 +204,14 @@ func UpdatePassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if userIdFromToken != userId {
-		responses.Error(w, http.StatusForbidden, errors.New("not possible to change another user's password that isnt yours."))
+		responses.Error(w, http.StatusForbidden, errors.New("not possible to change another user's password that isnt yours"))
 	}
 
 	bodyRequest, err := io.ReadAll(r.Body)
+	if err != nil {
+		responses.Error(w, http.StatusBadRequest, err)
+		return
+	}
 
 	var password models.Password
 	if err = json.Unmarshal(bodyRequest, &password); err != nil {
@@ -229,7 +233,7 @@ func UpdatePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err := security.CheckHash(passwordFromDb, password.Current); err != nil {
-		responses.Error(w, http.StatusInternalServerError, errors.New("The passwords dont match."))
+		responses.Error(w, http.StatusInternalServerError, errors.New("the passwords dont match"))
 		return
 	}
 
